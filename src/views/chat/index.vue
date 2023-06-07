@@ -105,9 +105,18 @@ async function onConversation() {
 
   try {
     let lastText = ''
+    let contextMessages = dataSources.value.map(item => ({
+      role: item.inversion ? 'user' : 'assistant',
+      content: item.text,
+    }))
+    contextMessages.pop()
+    if (!usingContext.value)
+      contextMessages = [{ role: 'user', content: message }]
+
     const fetchChatAPIOnce = async () => {
       await fetchChatAPIProcess<Chat.ConversationResponse>({
         prompt: message,
+        messages: contextMessages,
         options,
         signal: controller.signal,
         onDownloadProgress: ({ event }) => {
@@ -236,9 +245,17 @@ async function onRegenerate(index: number) {
 
   try {
     let lastText = ''
+    let contextMessages = dataSources.value.map(item => ({
+      role: item.inversion ? 'user' : 'assistant',
+      content: item.text,
+    }))
+    contextMessages.pop()
+    if (!usingContext.value)
+      contextMessages = [{ role: 'user', content: message }]
     const fetchChatAPIOnce = async () => {
       await fetchChatAPIProcess<Chat.ConversationResponse>({
         prompt: message,
+        messages: contextMessages,
         options,
         signal: controller.signal,
         onDownloadProgress: ({ event }) => {
@@ -502,7 +519,7 @@ onUnmounted(() => {
                   <template #icon>
                     <SvgIcon icon="ri:stop-circle-line" />
                   </template>
-									{{ t('common.stopResponding') }}
+                  {{ t('common.stopResponding') }}
                 </NButton>
               </div>
             </div>
